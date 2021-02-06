@@ -28,6 +28,7 @@ app.on('ready', function(){
 
 // Creating menu for mainWindow
 
+
 const mainMenuTemplate = [
     {
         label: 'File'
