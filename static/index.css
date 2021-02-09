@@ -1,0 +1,11 @@
+#teacher-btn{
+    width:10vw;
+    height:10vh;
+}
+#student-btn{
+    width:10vw;
+    height:10vh;
+}
+#teacher-code {
+    display:none;
+}

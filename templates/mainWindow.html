@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Main Window</title>
-    <!-- <link rel="stylesheet" type="text/css" href="../css/drawingboard.css" /> -->
     <link
       rel="stylesheet"
       type="text/css"
@@ -21,7 +20,7 @@
   <body>
     <div id="sketchBoard"></div>
   </body>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/drawingboard.js/0.4.6/drawingboard.min.js"></script> -->
+
   <script src="../node_modules/drawingboard.js/dist/drawingboard.min.js"></script>
   <script>
     $(document).ready(function () {
@@ -30,6 +29,84 @@
         color: "#000",
         webStorage: false,
       });
+    });
+
+    $(document).ready(function () {
+      let mouse = {
+        click: false,
+        move: false,
+        pos: { x: 0, y: 0 },
+        pos_prev: 0,
+      };
+
+      let sketchBoardDiv = document.getElementById("sketchBoard").getElementsByTagName("canvas")[0];
+      sketchBoardDiv.setAttribute("id", "canvas-board-main");
+
+      //let canvas = document.getElementById('canvas-board-main');
+      let widthWindow = window.innerWidth;
+      let heightWindow = window.innerHeight;
+      //sketchBoardDiv.width = widthWindow;
+      //sketchBoardDiv.height = heightWindow;
+      console.log("Window width: " + widthWindow); // to be removed later, width of browser window
+      console.log("Window height: " + heightWindow); // to be removed later, height of browser window
+
+      // normalizing the mouse coordinates for different sizes of browser windows
+      x = mouse.x / widthWindow;
+      y = mouse.y / heightWindow;
+
+      let drawing_positions = [];
+      //let mouse_movement = [];
+
+      sketchBoardDiv.onmousedown = function (e) {
+        mouse.pos.x = e.clientX / widthWindow;
+        mouse.pos.y = e.clientY / heightWindow;
+        mouse.click = true;
+        //console.log([mouse.pos.x, mouse.pos.y]); // gives the points where the cursor moves along the screen
+        drawing_positions.push({
+          "x-position": mouse.pos.x,
+          "y-position": mouse.pos.y,
+          activity: "click",
+          tool: $(".active").attr("data-mode"),
+          "cursor-size": $(".drawing-board-control-size div.drawing-board-control-inner").attr(
+            "title"
+          ),
+        });
+      };
+
+      sketchBoardDiv.onmouseup = function (e) {
+        if (mouse.click == true) {
+          mouse.click = false;
+        }
+
+        console.log(drawing_positions);
+      };
+
+      sketchBoardDiv.onmousemove = function (e) {
+        mouse.pos.x = e.clientX / widthWindow;
+        mouse.pos.y = e.clientY / heightWindow;
+        mouse.move = true;
+        //console.log([mouse.pos.x, mouse.pos.y]); // gives the points where the cursor moves along the screen
+        // when the person is actually drawing
+        if (mouse.click == true) {
+          drawing_positions.push({
+            "x-position": mouse.pos.x,
+            "y-position": mouse.pos.y,
+            activity: "move",
+            tool: $(".active").attr("data-mode"),
+            "cursor-size": $(".drawing-board-control-size div.drawing-board-control-inner").attr(
+              "title"
+            ),
+          });
+        }
+        // if the person drawing is jsut moving the cursor around and not actually drawing
+        /*else {
+        mouse_movement.push({
+          'x-position': mouse.pos.x,
+          'y-position': mouse.pos.y,
+          'activity': "move"
+        })
+      }*/
+      };
     });
   </script>
 </html>
