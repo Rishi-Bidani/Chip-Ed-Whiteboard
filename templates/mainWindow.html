@@ -8,7 +8,10 @@
       type="text/css"
       href="../node_modules/drawingboard.js/dist/drawingboard.css"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <script>
+      window.$ = window.jQuery = require("jquery");
+    </script>
   </head>
   <style>
     #sketchBoard {
@@ -23,6 +26,10 @@
 
   <script src="../node_modules/drawingboard.js/dist/drawingboard.min.js"></script>
   <script>
+    const path = require("path");
+    const electron = require("electron");
+    const { ipcRenderer } = electron;
+
     $(document).ready(function () {
       let imageBoard = new DrawingBoard.Board("sketchBoard", {
         controls: ["Color", { Size: { type: "range" } }, "Navigation", "DrawingMode"],
@@ -79,6 +86,7 @@
         }
 
         console.log(drawing_positions);
+        ipcRenderer.send("mousePositions", drawing_positions);
       };
 
       sketchBoardDiv.onmousemove = function (e) {
