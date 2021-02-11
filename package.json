@@ -1,0 +1,14 @@
+{
+  "name": "chipweb",
+  "version": "1.0.0",
+  "description": "website",
+  "main": "sample.js",
+  "author": "rishi",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "knex": "^0.21.17",
+    "pg": "^8.5.1",
+    "socket.io": "^3.1.1"
+  }
+}
