@@ -1,50 +1,58 @@
-const electron = require('electron');
-const url = require('url');
-const path = require('path');
+const electron = require("electron");
+const url = require("url");
+const path = require("path");
 
-const {app, BrowserWindow, Menu, ipcMain, webContents} = electron;
-
-
+const { app, BrowserWindow, Menu, ipcMain, webContents } = electron;
 
 const io = require("socket.io-client");
-
-const socket = io('http://127.0.0.1:5000/');
-
-
+const socket = io.connect("http://127.0.0.1:3000/firstNameSpace", {
+  path: "/myapp/socket.io",
+  secure: true,
+  rejectUnauthorized: false,
+});
 
 let mainWindow;
 
-// listening for the app
-
-app.on('ready', function(){
-    mainWindow = new BrowserWindow({
-        webPreferences: {
-            nodeIntegration: true // for allowing require in html file
-        }
-    });
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, "templates/mainWindow.html"),
-        protocol: 'file',
-        slashes: true
-    }));
-
-    //Build menu from template
-    // const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
-    //Inseerting the menu
-    // Menu.setApplicationMenu(mainMenu)
+app.on("ready", function () {
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true, // for allowing require in html file
+    },
+  });
+  mainWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, "templates/home.html"), // earlier mainWindow
+      protocol: "file",
+      slashes: true,
+    })
+  );
+  mainWindow.maximize();
+  // add custom  Menu here
 });
 
+//Send drawing data to server
 ipcMain.on("mousePositions", function (e, item) {
-    console.log(item)
-    socket.emit('hello', item);
-})
+  // console.log(Array.from(item)); // this was converting to normal array, but sending as base64 is fine.
+  console.log(item);
+  socket.emit("hello", item);
+});
 
+// Receive data for students - redraw the data
+ipcMain.on("serverPing:getbackinfo", function (E, item) {
+  const socket = io.connect("http://127.0.0.1:3000/firstNameSpace", {
+    path: "/myapp/socket.io",
+    secure: true,
+    rejectUnauthorized: false,
+  }); // Don't comment, this is required
+  console.log(item);
+  if (item == "returninfo") {
+    socket.emit("givebackinfo", "sendinfo");
+  } else {
+    console.log("error");
+  }
+});
 
-// Creating menu for mainWindow
-
-
-// const mainMenuTemplate = [
-//     {
-//         label: 'File'
-//     }
-// ]
+socket.on("datareturns", function (msg) {
+  console.log(msg);
+  mainWindow.webContents.send("RedrawData", msg);
+});

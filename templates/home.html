@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <style>
+      button {
+        width: 20vw;
+        height: 10vh;
+        background-color: gray;
+        border-radius: 5vh;
+        border: outset 0;
+        color: white;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="teacher.html"><button id="teacher">Teacher</button></a>
+    <a href="student.html"><button id="student">Student</button></a>
+    <script>
+      const path = require("path");
+      const electron = require("electron");
+      const { ipcRenderer } = electron;
+
+      let btnTeacher = document.getElementById("teacher");
+      let btnStudent = document.getElementById("student");
+
+      btnStudent.onclick = () => {
+        ipcRenderer.send("serverPing:getbackinfo", "returninfo");
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Student</title>
+    <style>
+      #sketchBoard {
+        width: 90vw;
+        height: 95vh;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sketchBoard"></div>
+  </body>
+  <script>
+    window.$ = window.jQuery = require("jquery");
+  </script>
+  <script src="../node_modules/drawingboard.js/dist/drawingboard.min.js"></script>
+  <script>
+    const path = require("path");
+    const electron = require("electron");
+    const { ipcRenderer } = electron;
+
+    $(document).ready(function () {
+      let imageBoard = new DrawingBoard.Board("sketchBoard", {
+        controls: ["Color", { Size: { type: "range" } }, "Navigation", "DrawingMode"],
+        color: "#000",
+        webStorage: false,
+      });
+    });
+
+    $(document).ready(function () {
+      // add an id attribute to the canvas
+      let sketchBoardDiv = document.getElementById("sketchBoard").getElementsByTagName("canvas")[0];
+      sketchBoardDiv.setAttribute("id", "canvas-board-main");
+      // get the canvas element
+      let canvas = document.getElementById("canvas-board-main");
+      let context = canvas.getContext("2d");
+
+      // get width and height of the window
+      let widthWindow = window.innerWidth;
+      let heightWindow = window.innerHeight;
+
+      // detect mouse click
+      // sketchBoardDiv.onmousedown = function (e) {
+      //   mouse.click = true;
+      // };
+
+      // // detect mouse release
+      // sketchBoardDiv.onmouseup = function (e) {
+      //   mouse.click = false;
+      // };
+
+      ipcRenderer.on("RedrawData", function (e, data) {
+        console.log(data);
+        var myImage = new Image();
+        myImage.src = data;
+        // context.drawImage(myImage, 0, 0);
+        myImage.onload = function () {
+          context.drawImage(myImage, 0, 0);
+        };
+
+        // console.log(data);
+        // data.forEach((ele) => {
+        //   console.log(ele);
+        //   point1 = {
+        //     x: ele.posx,
+        //     y: ele.posy,
+        //   };
+        //   point2 = {
+        //     x: ele.prevx,
+        //     y: ele.prevy,
+        //   };
+        //   draw_lines(point1, point2);
+        //   // console.log(ele);
+        // });
+      });
+
+      // use this function to draw lines received from the server
+      function draw_lines(point1, point2) {
+        point1.x = parseFloat(point1.x);
+        point1.y = parseFloat(point1.y);
+        point2.x = parseFloat(point2.x);
+        point2.y = parseFloat(point2.y);
+        console.log(point1);
+        context.beginPath();
+        //context.lineWidth = point1.cursorsize;
+        //context.strokeStyle = point2.color;
+        context.moveTo(point1.x * widthWindow, point1.y * heightWindow);
+        context.lineTo(point2.x * widthWindow, point2.y * heightWindow);
+        context.stroke();
+      }
+    });
+  </script>
+</html>

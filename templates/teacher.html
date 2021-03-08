@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Teacher</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../node_modules/drawingboard.js/dist/drawingboard.css"
+    />
+    <script>
+      window.$ = window.jQuery = require("jquery");
+    </script>
+    <style>
+      #sketchBoard {
+        width: 90vw;
+        height: 95vh;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sketchBoard"></div>
+    <button id="infoBack" hidden>Info Back</button>
+  </body>
+  <script src="../node_modules/drawingboard.js/dist/drawingboard.min.js"></script>
+  <script>
+    const path = require("path");
+    const electron = require("electron");
+    const { ipcRenderer } = electron;
+
+    document.getElementById("infoBack").onclick = () => {
+      ipcRenderer.send("serverPing:getbackinfo", "returninfo");
+    };
+
+    $(document).ready(function () {
+      let imageBoard = new DrawingBoard.Board("sketchBoard", {
+        controls: ["Color", { Size: { type: "range" } }, "Navigation", "DrawingMode"],
+        color: "#000",
+        webStorage: false,
+      });
+    });
+
+    $(document).ready(function () {
+      let mouse = {
+        click: false,
+        move: false,
+        pos: { x: 0, y: 0 },
+        pos_prev: 0,
+      };
+      let widthWindow = window.innerWidth;
+      let heightWindow = window.innerHeight;
+      let sketchBoardDiv = document.getElementById("sketchBoard").getElementsByTagName("canvas")[0];
+      sketchBoardDiv.setAttribute("id", "canvas-board-main");
+      let canvasWidth = widthWindow - 100;
+      let canvasHeight = heightWindow - 100; // alter to actual height
+      sketchBoardDiv.setAttribute("width", canvasWidth);
+      var ctx = sketchBoardDiv.getContext("2d");
+
+      console.log("Window width: " + widthWindow); // to be removed later, width of browser window
+      console.log("Window height: " + heightWindow); // to be removed later, height of browser window
+
+      // normalizing the mouse coordinates for different sizes of browser windows
+      x = mouse.x / widthWindow;
+      y = mouse.y / heightWindow;
+
+      let drawing_positions = [];
+
+      sketchBoardDiv.onmousedown = function (e) {
+        mouse.click = true;
+      };
+
+      sketchBoardDiv.onmouseup = function (e) {
+        if (mouse.click == true) {
+          mouse.click = false;
+        }
+      };
+
+      sketchBoardDiv.onmousemove = function (e) {
+        mouse.pos.x = e.clientX / widthWindow;
+        mouse.pos.y = e.clientY / heightWindow;
+        mouse.move = true;
+
+        if (mouse.click == true) {
+          //   let data = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+          //   console.log(data);
+          b64png = sketchBoardDiv.toDataURL();
+          console.log(b64png);
+          //   ipcRenderer.send("mousePositions", data["data"]);
+          ipcRenderer.send("mousePositions", b64png);
+        }
+      };
+    });
+  </script>
+</html>
